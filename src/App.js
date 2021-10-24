@@ -62,22 +62,9 @@ function App() {
   const debouncedWait = debounce(wait, 300);
 
   const reset = () => {
-    switch (status) {
-      case 1:
-        setTime({ s: 0, m: 0, h: 0 });
-        interv.unsubscribe();
-        setStatus(3);
-        break;
-      case 2:
-        setTime({ s: 0, m: 0, h: 0 });
-        setStatus(3);
-        break;
-
-      default:
-        break;
-    }
-
     interv.unsubscribe();
+    setTime({ s: 0, m: 0, h: 0 });
+    setStatus(3);
   };
 
   const debouncedReset = debounce(reset, 300);
