@@ -1,12 +1,10 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import './App.css';
 import { useEffect, useState } from 'react';
 import debounce from 'lodash.debounce';
-//import { Observable } from 'rxjs';
 
 import Display from './Components/Display';
 import Buttons from './Components/Buttons';
-//import { interval } from 'rxjs';
+import { interval } from 'rxjs';
 
 function App() {
   const [time, setTime] = useState({ s: 0, m: 0, h: 0 });
@@ -20,8 +18,14 @@ function App() {
   const start = () => {
     run();
     setStatus(1);
-    setInterv(setInterval(run, 1000));
+    setInterv(interval(1000).subscribe(run));
   };
+
+  useEffect(() => {
+    if (status === 3) {
+      start();
+    }
+  }, [start, status]);
 
   let updatedS = time.s,
     updatedM = time.m,
@@ -40,21 +44,15 @@ function App() {
     return setTime({ s: updatedS, m: updatedM, h: updatedH });
   };
 
-  useEffect(() => {
-    if (status === 3) {
-      start();
-    }
-  }, [start, status]);
-
   const stop = () => {
-    clearInterval(interv);
+    interv.unsubscribe();
     setTime({ s: 0, m: 0, h: 0 });
     setStatus(0);
   };
 
   const wait = () => {
     if (status === 1) {
-      clearInterval(interv);
+      interv.unsubscribe();
       setStatus(2);
     } else {
       start();
@@ -66,8 +64,8 @@ function App() {
   const reset = () => {
     switch (status) {
       case 1:
-        clearInterval(interv);
         setTime({ s: 0, m: 0, h: 0 });
+        interv.unsubscribe();
         setStatus(3);
         break;
       case 2:
@@ -79,7 +77,7 @@ function App() {
         break;
     }
 
-    clearInterval(interv);
+    interv.unsubscribe();
   };
 
   const debouncedReset = debounce(reset, 300);
